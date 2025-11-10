@@ -1,5 +1,8 @@
 # info001-tp1
 
+* Mema Entela
+* Rey Guillaume
+
 QUESTION 1
 Soit un message M dont on souhaite assurer la confidentialité, rappeler le calcul réalisé
 pour chiffrer ce message en utilisant RSA. On notera C le message chiffré. Votre calcul doit faire intervenir les paramètres trouvés à la question 1. Rappeler comment l’opération inverse
