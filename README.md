@@ -14,7 +14,6 @@ Clé privée : (n,d)(n, d)(n,d)
 Chiffrement : C = M^e mod n
 Déchiffrement : M = C^d mod n
 
-
 QUESTION 2
 Rappeler le rôle de la méthode Diffie-Hellman.
 
@@ -122,6 +121,109 @@ Avec -showcerts, tu vois toute la chaîne de certification :
 
 
 Le certificat du serveur (leaf certificate)
+
+
+Un ou plusieurs certificats intermédiaires
+
+
+(Parfois) le certificat racine si le serveur l’envoie (ce n’est pas obligatoire).
+
+Question 13
+
+x509 : indique que l’on travaille sur un certificat au format X.509, norme internationale décrivant la structure des certificats numériques.
+
+Subject: C=FR, ST=Auvergne-Rhône-Alpes, O=Université Grenoble Alpes, CN=*.univ-grenoble-alpes.fr
+
+C : Country
+ST : State
+L : Locality
+O : Organization
+OU : Organizational Unit
+CN : Common Name
+
+Issuer: C=NL, O=GEANT Vereniging, CN=GEANT OV RSA CA 4
+
+Organisation : GEANT Vereniging
+Question 14
+
+s (Subject), i (Issuer)
+
+Question 15
+Le certificat contient la clé publique RSA
+Signé avec RSA-SHA256
+CN contient le nom de domaine principal protégé par le certificat
+Les autres noms sont indiqués dans Subject Alternative Name (SAN).
+Validité du certificat : 1 an.
+Le lien .crl sert à vérifier que le certificat n’a pas été révoqué par l’autorité de certification.
+
+
+Question 16
+
+S=hdmodn, avec h=H(donneˊes du certificat)h = H(\text{données du certificat})h=H(donneˊes du certificat) et ddd la clé privée de l’émetteur
+
+Question 18
+Pour chaque certificat de niveau n, vérifier rapidement qu’il contient les informations
+nécessaires pour valider le certificat de niveau n-1. On s’intéresse au certificat de dernier niveau (lorsque j’ai effectué la manipulation, il s’agissait du niveau n2). Quel certificat permet de valider ce certificat ? Où se trouve-t-il ?
+
+Pour valider le certificat de niveau n2, il faut utiliser la clé publique et les informations du certificat émetteur (n1), c’est-à-dire le certificat de l’autorité intermédiaire qui l’a signé.
+Ce certificat (n1) se trouve généralement dans la chaîne de certificats envoyée par le serveur, juste au-dessus du certificat n2, ou bien dans le magasin de certificats de l’autorité de certification si le serveur ne l’a pas transmis.
+
+
+Question 19 
+Comparer les champs subject et issuer. Qu’en déduisez-vous ? Donnez la formule qui a
+permis de générer la signature de ce certificat ? Comment s’appelle ce type de certificat ?
+
+Pour valider le certificat de niveau n2 (USERTrust RSA Certification Authority), on utilise le certificat de niveau n1 (AAA Certificate Services), présent dans le magasin de certificats racines de confiance.
+Ce certificat se trouve dans le fichier /usr/share/pki/ca-trust-source/ca-bundle.trust.p11-kit, qui regroupe les autorités de certification racines et intermédiaires de confiance du système.
+
+Question 20
+Quelle est le type de clé utilisée ? Quelle est la taille de la clé ? Quelle courbe est
+utilisée ? Quelle est la durée de validité ? Qu’est-ce qui vous permet de dire qu’il s’agit d’un certificat « racine » ou auto-signé ? Pour quels « X509v3 Key Usage » cette autorité de certification peut-elle être utilisée ?
+Type de clé : RSA
+Taille de la clé : 2048 bits (comme défini dans default_bits = 2048)
+Courbe utilisée : Aucune, car ce n’est pas une clé elliptique (EC) mais une clé RSA
+Durée de validité : généralement 10 ans (à vérifier dans les champs Not Before / Not After du certificat)
+Certificat racine (auto-signé) : Oui, car le champ Issuer (émetteur) et le champ Subject (titulaire) sont identiques :
+
+
+La clé privé est dans: cat certs/ca.cert.pem 
+
+Pour lire la clé privée:  openssl ec -in private/ca.key.pem -text -noout
+
+
+Question 21
+Quelle valeur avez-vous mise dans le paramètre dir de la section CA_default ? Dans
+quel dossier et sous quel nom la clé privée de la CA devra-t-elle être stockée ? Dans quel dossier et sous quel nom le certificat de la CA devra-t-il être stocké ?
+
+Nous avons mis dir = /home/etudiant/ca
+Clé privée → private/ca.key.pem
+Certificat → certs/ca.cert.pem
+
+Question 22 
+Relever la commande saisie pour créer la clé
+
+Dans le dossier ca 
+
+Nous allons la créer dans le dossier /private avec la commande : 
+openssl genrsa -aes128 -out private/intermediate.key.pem 3072
+Passphrase : ton login
+
+
+openssl req -config openssl.cnf -new -sha256 -key private/intermediate.key.pem \
+-out csr/intermediate.csr.pem -subj "/C=FR/ST=Savoie/L=Chambery/O=TP Sécurité/CN=RA votre_login"
+
+
+Question 23
+On constate que la demande de certificat contient déjà une signature. Pourquoi est-ce
+que la présence de cette signature peut être qualifiée d’incongru ? Rechercher sur Internet quel est l’intérêt de cette signature.
+
+La demande de certificat (CSR) contient effectivement une signature numérique, réalisée avec la clé privée de l’entité qui demande le certificat (ici, ta CA intermédiaire).
+ Cette signature est visible dans ta sortie à la ligne :
+Signature Algorithm: sha256WithRSAEncryption
+Signature Value: ...
+
+
+Question 24
 
 
 Un ou plusieurs certificats intermédiaires
