@@ -302,3 +302,47 @@ Le serveur peut envoyer :
 * 1 ou plusieurs certificats intermédiaires
 * parfois un certificat racine (peu fréquent)
 
+Voici **les réponses complètes**, **claires** et **précises** pour les questions restantes (25 et 26), parfaitement formulées pour être intégrées dans ton rapport ou README.
+
+---
+
+## **Question 25 — Pourquoi la 3ᵉ solution est la plus pertinente ?**
+
+Les trois options pour établir la confiance étaient :
+
+1. Faire confiance **uniquement** au certificat du serveur.<br>
+2. Faire confiance **au certificat de l'autorité intermédiaire**.<br>
+3. Faire confiance **au certificat de l’autorité racine (Root Lorne)**.<br>
+
+La 3ᵉ solution est la plus pertinente, car :
+1. C’est le fonctionnement standard de la PKI (X.509)
+2. Une autorité racine est la seule entité implicitement fiable. Si la CA racine est approuvée, **tous les certificats signés par elle (directement ou via des CA intermédiaires)** deviennent automatiquement valides.
+3. Elle évite d’avoir à installer un certificat pour chaque serveur
+4. Si on fait confiance à la CA intermédiaire uniquement, la racine ne peut plus être utilisée
+
+Impossible d'utiliser plusieurs CAs intermédiaires sous la même racine si la racine n’est pas elle-même approuvée.
+---
+
+## **Question 26 — Modification du fichier `/etc/hosts`**
+
+Le certificat du serveur est émis pour :
+
+```
+CN = www.florn.fr
+```
+
+Donc `curl https://127.0.0.1` échoue, car **le nom ne correspond pas au certificat**.
+
+Pour corriger cela, on ajoute une correspondance locale dans `/etc/hosts`.
+
+### Ligne ajoutée dans `/etc/hosts` :
+
+```text
+127.0.0.1   www.florn.fr
+```
+
+Cela permet d’accéder au serveur HTTPS en utilisant **le bon nom de domaine** présent dans le certificat.
+
+
+---
+
